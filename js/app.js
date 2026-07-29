@@ -29,11 +29,22 @@ const statusSelect = document.getElementById("taskStatus");
 const addTaskBtn = document.getElementById("addTaskBtn");
 
 let editTaskId = null;
+let draggedTaskId = null;
 
 function createTaskCard(task) {
 
     const card = document.createElement("div");
     card.classList.add("task-card");
+
+    card.draggable = true;
+
+    card.addEventListener("dragstart", () => {
+        draggedTaskId = task.id;
+    });
+
+    card.addEventListener("dragend", () => {
+        draggedTaskId = null;
+    });
 
     const title = document.createElement("h3");
     title.textContent = task.title;
@@ -47,13 +58,8 @@ function createTaskCard(task) {
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Sil";
 
-    editBtn.addEventListener("click", () => {
-        startEdit(task.id);
-    });
-
-    deleteBtn.addEventListener("click", () => {
-        deleteTask(task.id);
-    });
+    editBtn.addEventListener("click", () => startEdit(task.id));
+    deleteBtn.addEventListener("click", () => deleteTask(task.id));
 
     card.append(
         title,
@@ -75,16 +81,19 @@ function renderTasks() {
 
         const card = createTaskCard(task);
 
-        if (task.status === "todo") {
-            todoColumn.append(card);
-        }
+        switch (task.status) {
 
-        if (task.status === "doing") {
-            doingColumn.append(card);
-        }
+            case "todo":
+                todoColumn.append(card);
+                break;
 
-        if (task.status === "done") {
-            doneColumn.append(card);
+            case "doing":
+                doingColumn.append(card);
+                break;
+
+            case "done":
+                doneColumn.append(card);
+                break;
         }
 
     });
@@ -113,7 +122,7 @@ addTaskBtn.addEventListener("click", () => {
 
     } else {
 
-        const task = tasks.find(item => item.id === editTaskId);
+        const task = tasks.find(task => task.id === editTaskId);
 
         task.title = title;
         task.description = description;
@@ -134,7 +143,7 @@ addTaskBtn.addEventListener("click", () => {
 
 function startEdit(id) {
 
-    const task = tasks.find(item => item.id === id);
+    const task = tasks.find(task => task.id === id);
 
     titleInput.value = task.title;
     descriptionInput.value = task.description;
@@ -153,5 +162,29 @@ function deleteTask(id) {
     renderTasks();
 
 }
+
+function setupDropZone(column, status) {
+
+    column.addEventListener("dragover", event => {
+        event.preventDefault();
+    });
+
+    column.addEventListener("drop", () => {
+
+        if (draggedTaskId === null) return;
+
+        const task = tasks.find(task => task.id === draggedTaskId);
+
+        task.status = status;
+
+        renderTasks();
+
+    });
+
+}
+
+setupDropZone(todoColumn, "todo");
+setupDropZone(doingColumn, "doing");
+setupDropZone(doneColumn, "done");
 
 renderTasks();

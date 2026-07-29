@@ -76,3 +76,18 @@ body {
     padding: 12px;
     cursor: pointer;
 }
+
+.task-card {
+    cursor: grab;
+    transition: .2s;
+}
+
+.task-card:active {
+    cursor: grabbing;
+}
+
+#todo,
+#doing,
+#done {
+    min-height: 350px;
+}
