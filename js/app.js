@@ -1,4 +1,4 @@
-let tasks = [
+const defaultTasks = [
     {
         id: 1,
         title: "HTML öyrən",
@@ -19,6 +19,8 @@ let tasks = [
     }
 ];
 
+let tasks = JSON.parse(localStorage.getItem("tasks")) || defaultTasks;
+
 const todoColumn = document.getElementById("todo");
 const doingColumn = document.getElementById("doing");
 const doneColumn = document.getElementById("done");
@@ -30,6 +32,10 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 
 let editTaskId = null;
 let draggedTaskId = null;
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
 function createTaskCard(task) {
 
@@ -61,12 +67,7 @@ function createTaskCard(task) {
     editBtn.addEventListener("click", () => startEdit(task.id));
     deleteBtn.addEventListener("click", () => deleteTask(task.id));
 
-    card.append(
-        title,
-        description,
-        editBtn,
-        deleteBtn
-    );
+    card.append(title, description, editBtn, deleteBtn);
 
     return card;
 }
@@ -94,6 +95,7 @@ function renderTasks() {
             case "done":
                 doneColumn.append(card);
                 break;
+
         }
 
     });
@@ -129,9 +131,11 @@ addTaskBtn.addEventListener("click", () => {
         task.status = status;
 
         editTaskId = null;
-
         addTaskBtn.textContent = "Tapşırıq əlavə et";
+
     }
+
+    saveTasks();
 
     titleInput.value = "";
     descriptionInput.value = "";
@@ -159,6 +163,7 @@ function deleteTask(id) {
 
     tasks = tasks.filter(task => task.id !== id);
 
+    saveTasks();
     renderTasks();
 
 }
@@ -175,8 +180,11 @@ function setupDropZone(column, status) {
 
         const task = tasks.find(task => task.id === draggedTaskId);
 
+        if (!task) return;
+
         task.status = status;
 
+        saveTasks();
         renderTasks();
 
     });
@@ -186,5 +194,9 @@ function setupDropZone(column, status) {
 setupDropZone(todoColumn, "todo");
 setupDropZone(doingColumn, "doing");
 setupDropZone(doneColumn, "done");
+
+if (!localStorage.getItem("tasks")) {
+    saveTasks();
+}
 
 renderTasks();
