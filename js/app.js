@@ -144,8 +144,22 @@ addTaskBtn.addEventListener("click", () => {
     const status = statusSelect.value;
     const priority = prioritySelect.value;
 
-    if (title === "") {
-        alert("Başlıq boş ola bilməz.");
+    if (title.length < 3) {
+        alert("Başlıq minimum 3 simvol olmalıdır.");
+        return;
+    }
+    if (description.length > 200) {
+        alert("Təsvir maksimum 200 simvol ola bilər.");
+        return;
+    }
+
+    const duplicateTask = tasks.find(task =>
+        task.title.toLowerCase() === title.toLowerCase() &&
+        task.id !== editTaskId
+    );
+
+    if (duplicateTask) {
+        alert("Bu başlıqda tapşırıq artıq mövcuddur.");
         return;
     }
 
@@ -221,11 +235,14 @@ function setupDropZone(column, status) {
 
         if (draggedTaskId === null) return;
 
-        const task = tasks.find(task => task.id === draggedTaskId);
+        const taskIndex = tasks.findIndex(task => task.id === draggedTaskId);
 
-        if (!task) return;
+        if (taskIndex === -1) return;
 
-        task.status = status;
+        tasks[taskIndex] = {
+            ...tasks[taskIndex],
+            status
+        };
 
         saveTasks();
         renderTasks();
