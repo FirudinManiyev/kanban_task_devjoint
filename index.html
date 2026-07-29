@@ -26,9 +26,28 @@
             <option value="done">Tamamlandı</option>
         </select>
 
+        <select id="taskPriority">
+            <option value="high">Yüksək</option>
+            <option value="medium">Orta</option>
+            <option value="low">Aşağı</option>
+        </select>
+
         <button id="addTaskBtn">
             Tapşırıq əlavə et
         </button>
+    </section>
+
+    <section class="filters">
+
+        <input type="text" id="searchInput" placeholder="Tapşırıq axtar...">
+
+        <select id="priorityFilter">
+            <option value="all">Bütün prioritetlər</option>
+            <option value="high">Yüksək</option>
+            <option value="medium">Orta</option>
+            <option value="low">Aşağı</option>
+        </select>
+
     </section>
 
     <main class="board">

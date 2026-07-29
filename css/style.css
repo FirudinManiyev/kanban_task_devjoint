@@ -91,3 +91,34 @@ body {
 #done {
     min-height: 350px;
 }
+
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    flex: 1;
+    padding: 10px;
+}
+
+.priority {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.high {
+    color: #e53935;
+}
+
+.medium {
+    color: #fb8c00;
+}
+
+.low {
+    color: #43a047;
+}

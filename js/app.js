@@ -3,19 +3,22 @@ const defaultTasks = [
         id: 1,
         title: "HTML öyrən",
         description: "Semantic HTML",
-        status: "todo"
+        status: "todo",
+        priority: "high"
     },
     {
         id: 2,
         title: "CSS yaz",
         description: "Flexbox məşqi",
-        status: "doing"
+        status: "doing",
+        priority: "medium"
     },
     {
         id: 3,
         title: "JavaScript",
         description: "DOM Manipulation",
-        status: "done"
+        status: "done",
+        priority: "low"
     }
 ];
 
@@ -28,6 +31,11 @@ const doneColumn = document.getElementById("done");
 const titleInput = document.getElementById("taskTitle");
 const descriptionInput = document.getElementById("taskDescription");
 const statusSelect = document.getElementById("taskStatus");
+const prioritySelect = document.getElementById("taskPriority");
+
+const searchInput = document.getElementById("searchInput");
+const priorityFilter = document.getElementById("priorityFilter");
+
 const addTaskBtn = document.getElementById("addTaskBtn");
 
 let editTaskId = null;
@@ -58,6 +66,11 @@ function createTaskCard(task) {
     const description = document.createElement("p");
     description.textContent = task.description;
 
+    const priority = document.createElement("p");
+    priority.textContent = "Prioritet: " + task.priority;
+    priority.classList.add("priority");
+    priority.classList.add(task.priority);
+
     const editBtn = document.createElement("button");
     editBtn.textContent = "Redaktə";
 
@@ -67,7 +80,13 @@ function createTaskCard(task) {
     editBtn.addEventListener("click", () => startEdit(task.id));
     deleteBtn.addEventListener("click", () => deleteTask(task.id));
 
-    card.append(title, description, editBtn, deleteBtn);
+    card.append(
+        title,
+        description,
+        priority,
+        editBtn,
+        deleteBtn
+    );
 
     return card;
 }
@@ -78,7 +97,24 @@ function renderTasks() {
     doingColumn.textContent = "";
     doneColumn.textContent = "";
 
-    tasks.forEach(task => {
+    const keyword = searchInput.value.trim().toLowerCase();
+    const selectedPriority = priorityFilter.value;
+
+    const filteredTasks = tasks.filter(task => {
+
+        const matchesKeyword =
+            task.title.toLowerCase().includes(keyword) ||
+            task.description.toLowerCase().includes(keyword);
+
+        const matchesPriority =
+            selectedPriority === "all" ||
+            task.priority === selectedPriority;
+
+        return matchesKeyword && matchesPriority;
+
+    });
+
+    filteredTasks.forEach(task => {
 
         const card = createTaskCard(task);
 
@@ -95,7 +131,6 @@ function renderTasks() {
             case "done":
                 doneColumn.append(card);
                 break;
-
         }
 
     });
@@ -107,6 +142,7 @@ addTaskBtn.addEventListener("click", () => {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const status = statusSelect.value;
+    const priority = prioritySelect.value;
 
     if (title === "") {
         alert("Başlıq boş ola bilməz.");
@@ -119,20 +155,23 @@ addTaskBtn.addEventListener("click", () => {
             id: Date.now(),
             title,
             description,
-            status
+            status,
+            priority
         });
 
     } else {
 
         const task = tasks.find(task => task.id === editTaskId);
 
+        if (!task) return;
+
         task.title = title;
         task.description = description;
         task.status = status;
+        task.priority = priority;
 
         editTaskId = null;
         addTaskBtn.textContent = "Tapşırıq əlavə et";
-
     }
 
     saveTasks();
@@ -140,6 +179,7 @@ addTaskBtn.addEventListener("click", () => {
     titleInput.value = "";
     descriptionInput.value = "";
     statusSelect.value = "todo";
+    prioritySelect.value = "high";
 
     renderTasks();
 
@@ -149,9 +189,12 @@ function startEdit(id) {
 
     const task = tasks.find(task => task.id === id);
 
+    if (!task) return;
+
     titleInput.value = task.title;
     descriptionInput.value = task.description;
     statusSelect.value = task.status;
+    prioritySelect.value = task.priority;
 
     editTaskId = id;
 
@@ -194,6 +237,10 @@ function setupDropZone(column, status) {
 setupDropZone(todoColumn, "todo");
 setupDropZone(doingColumn, "doing");
 setupDropZone(doneColumn, "done");
+
+searchInput.addEventListener("input", renderTasks);
+
+priorityFilter.addEventListener("change", renderTasks);
 
 if (!localStorage.getItem("tasks")) {
     saveTasks();
