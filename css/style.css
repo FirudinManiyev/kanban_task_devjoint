@@ -53,3 +53,26 @@ body {
 .task-card p {
     color: #666;
 }
+
+.task-form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-form input,
+.task-form textarea,
+.task-form select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.task-form button {
+    padding: 12px;
+    cursor: pointer;
+}

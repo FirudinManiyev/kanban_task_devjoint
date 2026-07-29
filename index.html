@@ -15,6 +15,22 @@
         <h1>Kanban İdarəetmə</h1>
     </header>
 
+    <section class="task-form">
+        <input type="text" id="taskTitle" placeholder="Tapşırıq başlığı">
+
+        <textarea id="taskDescription" placeholder="Tapşırıq təsviri"></textarea>
+
+        <select id="taskStatus">
+            <option value="todo">Gözləmədə</option>
+            <option value="doing">İcra olunur</option>
+            <option value="done">Tamamlandı</option>
+        </select>
+
+        <button id="addTaskBtn">
+            Tapşırıq əlavə et
+        </button>
+    </section>
+
     <main class="board">
 
         <section class="column">
