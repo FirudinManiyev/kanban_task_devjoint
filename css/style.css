@@ -122,3 +122,180 @@ body {
 .low {
     color: #43a047;
 }
+
+body {
+    background: #EEAECA;
+    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+}
+
+.header h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.column-header {
+
+    background: #2563eb;
+    color: white;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+.task-list {
+
+    flex: 1;
+
+    min-height: 400px;
+}
+
+.task-card {
+
+    background: white;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    margin-bottom: 15px;
+
+    transition: .25s;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+
+}
+
+.task-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 0 12px 25px rgba(0, 0, 0, .12);
+
+}
+
+.task-card button {
+
+    margin-top: 10px;
+
+    margin-right: 10px;
+
+    padding: 8px 15px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+}
+
+.task-card button:first-of-type {
+
+    background: #2563eb;
+
+    color: white;
+
+}
+
+.task-card button:last-of-type {
+
+    background: #ef4444;
+
+    color: white;
+
+}
+
+.priority {
+
+    display: inline-block;
+
+    padding: 4px 10px;
+
+    border-radius: 15px;
+
+    margin: 10px 0;
+
+    color: white;
+
+    font-size: 13px;
+
+}
+
+.priority.high {
+
+    background: #ef4444;
+
+}
+
+.priority.medium {
+
+    background: #f59e0b;
+
+}
+
+.priority.low {
+
+    background: #10b981;
+
+}
+
+@media(max-width:992px) {
+
+    .board {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+@media(max-width:600px) {
+
+    body {
+
+        padding: 15px;
+
+    }
+
+    .filters {
+
+        flex-direction: column;
+
+    }
+
+    .task-form {
+
+        gap: 10px;
+
+    }
+
+    .task-card button {
+
+        width: 100%;
+
+        margin-right: 0;
+    }
+
+}
+
+.task-list {
+
+    transition: .25s;
+}
+
+.task-list.drag-over {
+
+    background: #dbeafe;
+
+    border: 2px dashed #2563eb;
+
+    border-radius: 10px;
+}

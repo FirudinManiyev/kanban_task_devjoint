@@ -135,6 +135,28 @@ function renderTasks() {
 
     });
 
+    [
+        todoColumn,
+        doingColumn,
+        doneColumn
+    ].forEach(column => {
+
+        if (column.children.length === 0) {
+
+            const empty = document.createElement("p");
+
+            empty.textContent = "Tapşırıq yoxdur";
+
+            empty.style.textAlign = "center";
+            empty.style.color = "gray";
+            empty.style.padding = "20px";
+
+            column.append(empty);
+
+        }
+
+    });
+
 }
 
 addTaskBtn.addEventListener("click", () => {
