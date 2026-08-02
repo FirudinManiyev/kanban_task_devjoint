@@ -19,10 +19,41 @@ const defaultTasks = [
         description: "DOM Manipulation",
         status: "done",
         priority: "low"
+    },
+    {
+        id: 4,
+        title: "JavaScsdfsdfript",
+        description: "DOM Manipulation",
+        status: "done",
+        priority: "low"
     }
 ];
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || defaultTasks;
+let tasks;
+try {
+    const storedTasks = localStorage.getItem("tasks");
+    tasks = storedTasks ? JSON.parse(storedTasks) : defaultTasks;
+    
+    // Validate and sanitize tasks
+    tasks = tasks.filter(task => {
+        return task && 
+               typeof task.id === 'number' && 
+               typeof task.title === 'string' && 
+               typeof task.description === 'string' &&
+               typeof task.status === 'string' &&
+               typeof task.priority === 'string' &&
+               ['todo', 'doing', 'done'].includes(task.status) &&
+               ['high', 'medium', 'low'].includes(task.priority);
+    });
+    
+    // If no valid tasks remain, use defaults
+    if (tasks.length === 0) {
+        tasks = defaultTasks;
+    }
+} catch (error) {
+    console.error("JSON parse error:", error);
+    tasks = defaultTasks;
+}
 
 const todoColumn = document.getElementById("todo");
 const doingColumn = document.getElementById("doing");
@@ -40,6 +71,10 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 
 let editTaskId = null;
 let draggedTaskId = null;
+let touchDraggedCard = null;
+let touchClone = null;
+let touchOffsetX = 0;
+let touchOffsetY = 0;
 
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -58,6 +93,87 @@ function createTaskCard(task) {
 
     card.addEventListener("dragend", () => {
         draggedTaskId = null;
+    });
+
+    // Mobile touch support
+    card.addEventListener("touchstart", (e) => {
+        touchDraggedCard = card;
+        draggedTaskId = task.id;
+        
+        const touch = e.touches[0];
+        const rect = card.getBoundingClientRect();
+        touchOffsetX = touch.clientX - rect.left;
+        touchOffsetY = touch.clientY - rect.top;
+        
+        touchClone = card.cloneNode(true);
+        touchClone.style.position = "fixed";
+        touchClone.style.zIndex = "1000";
+        touchClone.style.width = rect.width + "px";
+        touchClone.style.opacity = "0.8";
+        touchClone.style.pointerEvents = "none";
+        touchClone.style.left = (touch.clientX - touchOffsetX) + "px";
+        touchClone.style.top = (touch.clientY - touchOffsetY) + "px";
+        document.body.appendChild(touchClone);
+        
+        card.style.opacity = "0.3";
+    }, { passive: true });
+
+    card.addEventListener("touchmove", (e) => {
+        if (!touchClone) return;
+        
+        const touch = e.touches[0];
+        touchClone.style.left = (touch.clientX - touchOffsetX) + "px";
+        touchClone.style.top = (touch.clientY - touchOffsetY) + "px";
+        
+        // Highlight drop zones
+        [todoColumn, doingColumn, doneColumn].forEach(col => {
+            const rect = col.getBoundingClientRect();
+            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                col.classList.add("drag-over");
+            } else {
+                col.classList.remove("drag-over");
+            }
+        });
+    }, { passive: true });
+
+    card.addEventListener("touchend", (e) => {
+        if (!touchClone) return;
+        
+        const touch = e.changedTouches[0];
+        
+        // Find which column the touch ended in
+        let targetStatus = null;
+        [todoColumn, doingColumn, doneColumn].forEach(col => {
+            col.classList.remove("drag-over");
+            const rect = col.getBoundingClientRect();
+            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                if (col.id === "todo") targetStatus = "todo";
+                if (col.id === "doing") targetStatus = "doing";
+                if (col.id === "done") targetStatus = "done";
+            }
+        });
+        
+        // Update task status if dropped in a valid column
+        if (targetStatus && draggedTaskId !== null) {
+            const taskIndex = tasks.findIndex(task => task.id === draggedTaskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex] = {
+                    ...tasks[taskIndex],
+                    status: targetStatus
+                };
+                saveTasks();
+                renderTasks();
+            }
+        }
+        
+        // Cleanup
+        document.body.removeChild(touchClone);
+        touchClone = null;
+        touchDraggedCard = null;
+        draggedTaskId = null;
+        card.style.opacity = "1";
     });
 
     const title = document.createElement("h3");
@@ -101,6 +217,7 @@ function renderTasks() {
     const selectedPriority = priorityFilter.value;
 
     const filteredTasks = tasks.filter(task => {
+        if (!task || !task.title || !task.description) return false;
 
         const matchesKeyword =
             task.title.toLowerCase().includes(keyword) ||
@@ -176,7 +293,7 @@ addTaskBtn.addEventListener("click", () => {
     }
 
     const duplicateTask = tasks.find(task =>
-        task.title.toLowerCase() === title.toLowerCase() &&
+        task && task.title && task.title.toLowerCase() === title.toLowerCase() &&
         task.id !== editTaskId
     );
 
@@ -251,9 +368,15 @@ function setupDropZone(column, status) {
 
     column.addEventListener("dragover", event => {
         event.preventDefault();
+        column.classList.add("drag-over");
+    });
+
+    column.addEventListener("dragleave", () => {
+        column.classList.remove("drag-over");
     });
 
     column.addEventListener("drop", () => {
+        column.classList.remove("drag-over");
 
         if (draggedTaskId === null) return;
 

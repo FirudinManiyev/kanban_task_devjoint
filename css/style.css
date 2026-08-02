@@ -48,10 +48,16 @@ body {
 .task-card h3 {
     font-size: 18px;
     margin-bottom: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .task-card p {
     color: #666;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .task-form {
